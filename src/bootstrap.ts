@@ -8,19 +8,19 @@ import {
   BudgetStore,
   TrustStore,
   type SigningOptions,
-} from "@delegation-gatekeeper/gateway";
+} from "@vouch/gateway";
 
 let store: IdentityStore | null = null;
 let approvalStore: ApprovalStore | null = null;
 let budgetStore: BudgetStore | null = null;
 let trustStore: TrustStore | null = null;
 
-const SIGNING_SECRET = process.env.GATEKEEPER_SIGNING_SECRET ?? "dev-secret-change-in-production";
+const SIGNING_SECRET = process.env.VOUCH_SIGNING_SECRET ?? "dev-secret-change-in-production";
 
 export function getSigningOptions(): SigningOptions {
   return {
     secret: SIGNING_SECRET,
-    issuer: "delegation-gatekeeper",
+    issuer: "vouch",
   };
 }
 

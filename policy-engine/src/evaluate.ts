@@ -3,7 +3,7 @@
  * Default: deny unless a rule allows. Emits stable policy_decision_id for audit.
  */
 
-import type { ActionRequest, Agent, PolicyDecision, PolicyConditions } from '@delegation-gatekeeper/types';
+import type { ActionRequest, Agent, PolicyDecision, PolicyConditions } from '@vouch/types';
 import { DEFAULT_POLICY, type PolicyConfig, type PolicyRule } from './policy-config.js';
 
 /** Resolved agent identity (Agent from identity layer or minimal view) */

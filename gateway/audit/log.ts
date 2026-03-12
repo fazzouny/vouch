@@ -5,7 +5,7 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { AuditEvent } from '@delegation-gatekeeper/types';
+import type { AuditEvent } from '@vouch/types';
 import type { AuditLogOptions, AuditQueryFilter } from './types.js';
 
 /** Canonical string for hashing (stable key order not required for our use; consistency is) */

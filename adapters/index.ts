@@ -1,2 +1,2 @@
-/** @delegation-gatekeeper/adapters — Execution mediators placeholder */
+/** @vouch/adapters — Execution mediators placeholder */
 export {};

@@ -1,11 +1,11 @@
 {
-  "name": "@delegation-gatekeeper/admin-ui",
+  "name": "@vouch/admin-ui",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "echo 'Admin UI build TBD'"
   },
   "dependencies": {
-    "@delegation-gatekeeper/types": "*"
+    "@vouch/types": "*"
   }
 }

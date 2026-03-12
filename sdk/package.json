@@ -1,7 +1,7 @@
 {
-  "name": "@delegation-gatekeeper/sdk",
+  "name": "@vouch/sdk",
   "version": "0.1.0",
-  "description": "TypeScript SDK for Delegation Gatekeeper",
+  "description": "TypeScript SDK for Vouch",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

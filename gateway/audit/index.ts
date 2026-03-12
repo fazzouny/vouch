@@ -2,7 +2,7 @@
  * Audit and evidence layer (Phase 1.4).
  * Append-only log, optional hash chain, write and query API.
  */
-import type { AuditEvent } from '@delegation-gatekeeper/types';
+import type { AuditEvent } from '@vouch/types';
 import { AuditLog } from './log.js';
 import type { AuditLogOptions, AuditQueryFilter } from './types.js';
 

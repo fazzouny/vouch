@@ -1,2 +1,2 @@
-/** @delegation-gatekeeper/sdk — Client SDK placeholder */
+/** @vouch/sdk — Client SDK placeholder */
 export {};

@@ -1,2 +1,2 @@
-/** @delegation-gatekeeper/cli — CLI placeholder */
+/** @vouch/cli — CLI placeholder */
 export {};

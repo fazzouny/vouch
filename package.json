@@ -1,14 +1,14 @@
 {
-  "name": "delegation-gatekeeper",
+  "name": "vouch",
   "version": "0.1.0",
   "license": "MIT",
   "description": "Trust and control layer for AI agents — identity, scoped grants, policy, approval, execution mediation, and audit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/delegation-gatekeeper.git"
+    "url": "https://github.com/fazzouny/vouch.git"
   },
-  "bugs": { "url": "https://github.com/YOUR_USERNAME/delegation-gatekeeper/issues" },
-  "homepage": "https://github.com/YOUR_USERNAME/delegation-gatekeeper#readme",
+  "bugs": { "url": "https://github.com/fazzouny/vouch/issues" },
+  "homepage": "https://github.com/fazzouny/vouch#readme",
   "type": "module",
   "workspaces": [
     "gateway",
@@ -20,14 +20,14 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @delegation-gatekeeper/types && npm run build --workspaces --if-present && tsc",
+    "build": "npm run build -w @vouch/types && npm run build --workspaces --if-present && tsc",
     "start": "node dist/gateway/server.js",
     "dev": "tsx watch src/gateway/server.ts",
     "dev:gateway": "tsx watch src/gateway/server.ts"
   },
   "dependencies": {
-    "@delegation-gatekeeper/gateway": "*",
-    "@delegation-gatekeeper/policy-engine": "*",
+    "@vouch/gateway": "*",
+    "@vouch/policy-engine": "*",
     "cors": "^2.8.5",
     "express": "^4.21.0"
   },

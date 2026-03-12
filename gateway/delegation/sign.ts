@@ -3,7 +3,7 @@
  * Phase 1: symmetric key; issuer provides secret.
  */
 
-import type { GrantPayload, SignedGrant } from '@delegation-gatekeeper/types';
+import type { GrantPayload, SignedGrant } from '@vouch/types';
 import * as crypto from 'node:crypto';
 
 const ALG = 'HS256';

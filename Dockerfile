@@ -1,4 +1,4 @@
-# Delegation Gatekeeper gateway — production image
+# Vouch gateway — production image
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json* ./

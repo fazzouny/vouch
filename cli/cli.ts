@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Delegation Gatekeeper CLI: request grant, execute, query audit, list approvals, revoke grant.
+ * Vouch CLI: request grant, execute, query audit, list approvals, revoke grant.
  * Usage: dg <command> [options]
  *   dg delegate --base-url URL --token TOKEN --target rest [--scope SCOPE]
  *   dg execute --base-url URL --grant-file FILE --action '{"url":"..."}'
@@ -8,10 +8,10 @@
  *   dg approvals --base-url URL [--status pending]
  *   dg revoke --base-url URL --grant-id ID
  */
-const BASE_URL = process.env.GATEKEEPER_BASE_URL ?? "http://localhost:3040";
+const BASE_URL = process.env.VOUCH_BASE_URL ?? "http://localhost:3040";
 
 async function delegate(args: string[]): Promise<void> {
-  const token = args.indexOf("--token") >= 0 ? args[args.indexOf("--token") + 1] : process.env.GATEKEEPER_TOKEN ?? "agent-1";
+  const token = args.indexOf("--token") >= 0 ? args[args.indexOf("--token") + 1] : process.env.VOUCH_TOKEN ?? "agent-1";
   const baseUrl = args.indexOf("--base-url") >= 0 ? args[args.indexOf("--base-url") + 1] : BASE_URL;
   const target = args.indexOf("--target") >= 0 ? args[args.indexOf("--target") + 1] : "rest";
   const scope = args.indexOf("--scope") >= 0 ? args[args.indexOf("--scope") + 1] : "default";
@@ -118,9 +118,9 @@ const commands: Record<string, (args: string[]) => Promise<void>> = {
 const argv = process.argv.slice(2);
 const cmd = argv[0];
 if (!cmd || !commands[cmd]) {
-  console.log("Delegation Gatekeeper CLI");
+  console.log("Vouch CLI");
   console.log("Commands:", Object.keys(commands).join(", "));
-  console.log("Env: GATEKEEPER_BASE_URL, GATEKEEPER_TOKEN");
+  console.log("Env: VOUCH_BASE_URL, VOUCH_TOKEN");
   process.exit(0);
 }
 commands[cmd]!(argv.slice(1)).catch((err) => {

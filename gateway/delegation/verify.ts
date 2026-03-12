@@ -3,7 +3,7 @@
  * Checks signature and expiry; optionally revocation (via isRevoked).
  */
 
-import type { GrantPayload, SignedGrant } from '@delegation-gatekeeper/types';
+import type { GrantPayload, SignedGrant } from '@vouch/types';
 import { verifySignature } from './sign.js';
 import { isRevoked } from './revocation.js';
 

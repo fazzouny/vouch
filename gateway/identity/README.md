@@ -1,6 +1,6 @@
 # Identity Layer (Phase 1.1)
 
-In-memory identity store, CRUD/lookup APIs, and auth resolution for the Delegation Gatekeeper.
+In-memory identity store, CRUD/lookup APIs, and auth resolution for Vouch.
 
 ## Exports
 
@@ -12,9 +12,9 @@ In-memory identity store, CRUD/lookup APIs, and auth resolution for the Delegati
 1. Create a store (e.g. one per process or inject):
 
 ```ts
-import { IdentityStore, resolveCallerIdentity } from '@delegation-gatekeeper/gateway';
+import { IdentityStore, resolveCallerIdentity } from '@vouch/gateway';
 // or from the identity subpath:
-// import { IdentityStore, resolveCallerIdentity } from '@delegation-gatekeeper/gateway/identity';
+// import { IdentityStore, resolveCallerIdentity } from '@vouch/gateway/identity';
 
 const store = new IdentityStore();
 ```

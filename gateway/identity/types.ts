@@ -1,8 +1,8 @@
 /**
  * Identity layer request/context types used by the gateway.
- * Entity types come from @delegation-gatekeeper/types.
+ * Entity types come from @vouch/types.
  */
-import type { Agent, User, TrustLevel } from '@delegation-gatekeeper/types';
+import type { Agent, User, TrustLevel } from '@vouch/types';
 
 /** Minimal request shape for auth: API key or JWT in headers */
 export interface IncomingRequestLike {

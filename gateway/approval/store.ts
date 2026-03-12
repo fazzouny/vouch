@@ -2,7 +2,7 @@
  * In-memory approval request and decision store.
  * Schema-ready for Postgres later.
  */
-import type { ApprovalRequest, ApprovalDecision, ApprovalStatus } from '@delegation-gatekeeper/types';
+import type { ApprovalRequest, ApprovalDecision, ApprovalStatus } from '@vouch/types';
 import * as crypto from 'node:crypto';
 
 function now(): string {

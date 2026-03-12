@@ -1,5 +1,5 @@
 /**
- * @delegation-gatekeeper/policy-engine
+ * @vouch/policy-engine
  * Evaluate action requests against policy rules. Default: deny unless a rule allows.
  */
 

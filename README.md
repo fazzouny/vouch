@@ -1,86 +1,79 @@
-# VoUCH - Delegation Gatekeeper
+# Vouch
 
-Trust, delegation, approval, and audit layer between AI agents and external systems.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node 18+](https://img.shields.io/badge/node-%3E%3D18-green)](https://nodejs.org)
 
-## What's built
+**Trust, delegation, approval, and audit** — the control layer between AI agents and the systems they call.  
+*One name to remember: **Vouch** for your agents.*
 
-The gateway uses the **full** implementation: identity store (seeded default agent), policy engine (allow/deny/require_approval), signed grants, revocation, audit log, approvals, budgets, trust scores, and execution adapters (REST, A2A, browser stub). Build: `npm run build`. Start: `npm start` (port 3040; set `PORT` or `GATEKEEPER_SIGNING_SECRET` in production).
+---
 
-**API summary:** `POST /delegate` (identity → policy → grant or 202 pending approval), `POST /execute` (verify grant → adapter → result), `GET/POST /approvals`, `POST /approvals/:id/decide`, `GET/POST /budgets`, `GET /audit/events`, `GET /audit/export`, `GET /trust/agents/:id/score`, `POST /grants/revoke`.
+## Why Vouch?
 
-**CLI:** `npx dg delegate --token agent-1 --target rest`, `dg audit`, `dg approvals`, `dg revoke --grant-id <id>`. Env: `GATEKEEPER_BASE_URL`, `GATEKEEPER_TOKEN`.
+AI agents need to call APIs, run tools, and access resources. Letting them do that without a gate means risk: no visibility, no policy, no way to say “this agent can do X but not Y.” **Vouch** sits in the middle: agents request a *delegation* (a scoped grant); you get identity, policy (allow/deny/require approval), signed grants, revocation, budgets, trust scores, and a full audit trail. Run it yourself — no vendor lock-in.
 
-**Admin UI:** Open `admin-ui/index.html` in a browser (or serve it); set base URL to your gateway to view pending approvals and audit events.
+## Quick start
 
-**Deployment:** `docker compose up` (see `Dockerfile` and `docker-compose.yml`). Set `GATEKEEPER_SIGNING_SECRET` in production.
+```bash
+git clone https://github.com/fazzouny/vouch.git
+cd vouch
+npm install
+npm run build
+npm start
+```
+
+Gateway runs at **http://localhost:3040**. Use the CLI or SDK to request a grant and execute an action (see below).
+
+| What you need | Command / env |
+|---------------|----------------|
+| **CLI** | `npx vouch delegate --token agent-1 --target rest` then `vouch audit`, `vouch approvals`, `vouch revoke --grant-id <id>` |
+| **Env** | `VOUCH_BASE_URL` (default `http://localhost:3040`), `VOUCH_TOKEN` (e.g. `agent-1`) |
+| **Production** | Set `VOUCH_SIGNING_SECRET`; see [Deployment](docs/DEPLOYMENT.md) and `docker compose up` |
+
+## What’s included
+
+- **Gateway** — Identity (seeded default agent), policy engine (allow / deny / require_approval), signed grants, revocation, audit log (with optional hash chain), approvals, budgets, trust scores.
+- **Execution adapters** — REST proxy, A2A relay, browser (stub).
+- **API** — `POST /delegate`, `POST /execute`, `GET/POST /approvals`, `POST /approvals/:id/decide`, `GET/POST /budgets`, `GET /audit/events`, `GET /audit/export`, `GET /trust/agents/:id/score`, `POST /grants/revoke`. See [OpenAPI](docs/openapi.yaml).
+- **SDK** — `@vouch/sdk`: `VouchClient.requestDelegation`, `executeWithGrant`.
+- **CLI** — `vouch` for delegate, execute, audit, approvals, revoke.
+- **Admin UI** — Static dashboard for pending approvals and audit events (serve `admin-ui/` and point base URL at your gateway).
 
 ## Project structure
 
 | Area | Location | Description |
 |------|----------|-------------|
 | **Shared types** | `packages/types/` | Identity, Grant, PolicyDecision, AuditEvent, ActionRequest |
-| **Identity layer** | `gateway/identity/` | IdentityStore, resolveCallerIdentity(store, request), CRUD/lookup, auth middleware |
-| **Delegation + policy** | `gateway/delegation/`, `policy-engine/` | mintGrant, verifyGrant, revokeGrant, isRevoked; evaluatePolicy (allow/deny/require_approval) |
-| **Audit layer** | `gateway/audit/` | AuditLog, appendEvent, queryEvents, optional hash chain |
-| **Execution + gateway** | `src/gateway/`, `src/mediation/`, `src/adapters/` | POST /delegate, POST /execute, REST proxy adapter, adapter registry |
-| **SDK** | `sdk/` | GatekeeperClient.requestDelegation, executeWithGrant |
-| **Approval** | `gateway/approval/` | ApprovalStore, createRequest, decide |
-| **Budget** | `gateway/budget/` | BudgetStore, checkWithinBudget, recordSpend |
-| **Trust** | `gateway/trust/` | TrustStore, recordSignal, getScore |
-| **Adapters** | `src/adapters/` | REST, A2A relay, browser (stub) |
-| **CLI** | `cli/` | `dg delegate|execute|audit|approvals|revoke` |
-| **Admin UI** | `admin-ui/` | Static HTML dashboard for approvals and audit |
+| **Identity** | `gateway/identity/` | IdentityStore, resolveCallerIdentity, auth |
+| **Delegation + policy** | `gateway/delegation/`, `policy-engine/` | mintGrant, verifyGrant, revokeGrant; evaluatePolicy |
+| **Audit** | `gateway/audit/` | AuditLog, appendEvent, queryEvents, hash chain |
+| **Gateway + execution** | `src/gateway/`, `src/mediation/`, `src/adapters/` | Routes, REST/A2A/browser adapters |
+| **SDK** | `sdk/` | VouchClient.requestDelegation, executeWithGrant |
+| **Approval / budget / trust** | `gateway/approval/`, `gateway/budget/`, `gateway/trust/` | Stores and APIs |
+| **CLI** | `cli/` | `vouch delegate | execute | audit | approvals | revoke` |
+| **Admin UI** | `admin-ui/` | Dashboard for approvals and audit |
 
-## Gateway and SDK
-
-- **Adapter interface**: `ExecutionAdapter.execute(verifiedGrant, actionPayload)` with revocation check before and audit after.
-- **REST proxy adapter**: Forwards HTTP requests (target type `http` or `rest`).
-- **Gateway**: `POST /delegate` (identity → policy → grant or 202 pending approval), `POST /execute` (verify → adapter → result), approvals, budgets, audit export, trust, revoke.
-- **OpenAPI**: `docs/openapi.yaml`.
-- **SDK**: `@delegation-gatekeeper/sdk` with `requestDelegation` and `executeWithGrant`.
-
-### Gateway port
-
-Default: **3040** (override with `PORT`).
-
-### Run the gateway
+## Using the SDK
 
 ```bash
-# From project root
-npm install
-npm run build
-npm start
-```
-
-Development (watch):
-
-```bash
-npm run dev
-```
-
-### Call from the SDK
-
-```bash
-# Build SDK
+# From repo root (SDK is a workspace package)
 cd sdk && npm install && npm run build && cd ..
 ```
 
 ```ts
-import { GatekeeperClient } from "@delegation-gatekeeper/sdk";
+import { VouchClient } from "@vouch/sdk";
 
-const client = new GatekeeperClient({
+const client = new VouchClient({
   baseUrl: "http://localhost:3040",
-  token: "agent-1", // stub: used as agent id
+  token: "agent-1",
 });
 
-// 1. Request a grant
 const grant = await client.requestDelegation({
   targetType: "rest",
   intendedAction: "GET example.com",
   actionPayload: { url: "https://httpbin.org/get", method: "GET" },
 });
 
-// 2. Execute with the grant
 const out = await client.executeWithGrant(grant, {
   url: "https://httpbin.org/get",
   method: "GET",
@@ -88,26 +81,19 @@ const out = await client.executeWithGrant(grant, {
 console.log(out.result);
 ```
 
-Using the SDK from the repo (no publish):
+Without publishing the SDK, use a path import: `import { VouchClient } from "./sdk/src/index.js";` or `npm link ./sdk`.
 
-```ts
-import { GatekeeperClient } from "./sdk/src/index.js";
-// or link: npm link ./sdk
-```
+## Docs
 
-### Files created (Phase 1.5–1.6)
+- [Deployment](docs/DEPLOYMENT.md) — Docker, env vars, production notes
+- [OpenAPI](docs/openapi.yaml) — API spec
+- [Policy pack example](docs/policy-pack-finance.example.json) — JSON policy sample
 
-| Area | Files |
-|------|--------|
-| Types & stubs | `src/types.ts`, `src/identity/index.ts`, `src/delegation/index.ts`, `src/policy/index.ts`, `src/audit/index.ts` |
-| Adapter | `src/adapters/types.ts`, `src/adapters/rest-proxy-adapter.ts`, `src/adapters/registry.ts` |
-| Mediation | `src/mediation/execute.ts` |
-| Gateway | `src/gateway/server.ts` |
-| API spec | `docs/openapi.yaml` |
-| SDK | `sdk/package.json`, `sdk/tsconfig.json`, `sdk/src/types.ts`, `sdk/src/client.ts`, `sdk/src/index.ts` |
+## License and contributing
 
-## License
+- **License:** [MIT](LICENSE)
+- **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Security:** [SECURITY.md](SECURITY.md)
+- **Code of conduct:** [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 
-This project is open source under the **MIT License**. See [LICENSE](LICENSE) for the full text.
-
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Repository: **[github.com/fazzouny/vouch](https://github.com/fazzouny/vouch)**

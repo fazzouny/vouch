@@ -1,5 +1,5 @@
 /**
- * Core types for Delegation Gatekeeper.
+ * Core types for Vouch.
  */
 
 export interface CallerIdentity {

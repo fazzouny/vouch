@@ -8,8 +8,8 @@ import type {
   GrantPayload,
   GrantScope,
   SignedGrant,
-} from '@delegation-gatekeeper/types';
-import { evaluatePolicy, type AgentIdentity } from '@delegation-gatekeeper/policy-engine';
+} from '@vouch/types';
+import { evaluatePolicy, type AgentIdentity } from '@vouch/policy-engine';
 import * as crypto from 'node:crypto';
 import { signGrant, defaultExpiresAt, type SigningOptions } from './sign.js';
 import { registerGrant } from './revocation.js';

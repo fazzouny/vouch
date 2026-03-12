@@ -2,7 +2,7 @@
  * In-memory trust signal and score store.
  * Aggregates signals into a tier (low/medium/high) per agent/tool/peer.
  */
-import type { TrustSignal, TrustScore, TrustTier, TrustSignalType } from '@delegation-gatekeeper/types';
+import type { TrustSignal, TrustScore, TrustTier, TrustSignalType } from '@vouch/types';
 import * as crypto from 'node:crypto';
 
 function now(): string {

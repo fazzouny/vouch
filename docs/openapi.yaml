@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Delegation Gatekeeper API
+  title: Vouch API
   description: Trust, delegation, approval, and audit layer between AI agents and external systems.
   version: 0.1.0
 

@@ -1,6 +1,6 @@
 /**
- * @delegation-gatekeeper/types
- * Shared TypeScript types and schemas for the Delegation Gatekeeper monorepo.
+ * @vouch/types
+ * Shared TypeScript types and schemas for the Vouch monorepo.
  * Use for identity, grants, policy decisions, and audit events across gateway, policy-engine, adapters, and sdk.
  */
 

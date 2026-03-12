@@ -9,7 +9,7 @@ import type {
   ServiceAccount,
   Agent,
   AgentRuntime,
-} from '@delegation-gatekeeper/types';
+} from '@vouch/types';
 
 function now(): string {
   return new Date().toISOString();

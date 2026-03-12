@@ -16,7 +16,7 @@ import {
   TrustStore,
   type SigningOptions,
   type ResolvedIdentityContext,
-} from "@delegation-gatekeeper/gateway";
+} from "@vouch/gateway";
 import * as crypto from "node:crypto";
 import type {
   ActionRequest as TypesActionRequest,
@@ -24,8 +24,8 @@ import type {
   GrantPayload,
   AuditRequestPayload,
   AuditExecutionPayload,
-} from "@delegation-gatekeeper/types";
-import type { AgentIdentity } from "@delegation-gatekeeper/policy-engine";
+} from "@vouch/types";
+import type { AgentIdentity } from "@vouch/policy-engine";
 import { getIdentityStore, getSigningOptions, getApprovalStore, getBudgetStore, getTrustStore } from "../bootstrap.js";
 import { getAdapter } from "../adapters/registry.js";
 import type { VerifiedGrant, ExecutionResult } from "../types.js";
@@ -493,7 +493,7 @@ app.get("/budgets", async (req, res) => {
 
 app.post("/grants/revoke", async (req, res) => {
   try {
-    const { revokeGrant } = await import("@delegation-gatekeeper/gateway");
+    const { revokeGrant } = await import("@vouch/gateway");
     const { grantId } = req.body as { grantId?: string };
     if (!grantId) {
       res.status(400).json({ error: "bad_request", reason: "body must include grantId" });
@@ -537,7 +537,7 @@ app.post("/budgets", async (req, res) => {
 });
 
 const server = app.listen(PORT, () => {
-  console.log(`Delegation Gatekeeper gateway listening on http://localhost:${PORT}`);
+  console.log(`Vouch gateway listening on http://localhost:${PORT}`);
 });
 
 server.on("error", (err: NodeJS.ErrnoException) => {

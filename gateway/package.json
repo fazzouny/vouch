@@ -1,5 +1,5 @@
 {
-  "name": "@delegation-gatekeeper/gateway",
+  "name": "@vouch/gateway",
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
@@ -9,8 +9,8 @@
     "test": "npm run build && node --test dist/identity/store.test.js dist/identity/auth.test.js"
   },
   "dependencies": {
-    "@delegation-gatekeeper/types": "*",
-    "@delegation-gatekeeper/policy-engine": "*"
+    "@vouch/types": "*",
+    "@vouch/policy-engine": "*"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",

@@ -1,20 +1,20 @@
 /**
- * Delegation Gatekeeper client: requestDelegation and executeWithGrant.
+ * Vouch client: requestDelegation and executeWithGrant.
  */
 
 import type { ActionRequest, Grant, DelegateSuccess, ExecuteSuccess } from "./types.js";
 
-export interface GatekeeperClientOptions {
+export interface VouchClientOptions {
   baseUrl: string;
   /** Bearer token (e.g. agent id for stub auth) */
   token: string;
 }
 
-export class GatekeeperClient {
+export class VouchClient {
   private readonly baseUrl: string;
   private readonly token: string;
 
-  constructor(options: GatekeeperClientOptions) {
+  constructor(options: VouchClientOptions) {
     this.baseUrl = options.baseUrl.replace(/\/$/, "");
     this.token = options.token;
   }

@@ -1,4 +1,4 @@
-# Contributing to Delegation Gatekeeper
+# Contributing to Vouch
 
 Thank you for your interest in contributing. This project is open source under the [MIT License](LICENSE).
 
@@ -18,7 +18,7 @@ Thank you for your interest in contributing. This project is open source under t
 
 ## Reporting issues
 
-Open an Issue on the GitHub repository with:
+Open an [Issue](https://github.com/fazzouny/vouch/issues) with:
 
 - A short description and steps to reproduce.
 - Your environment (Node version, OS) if relevant.

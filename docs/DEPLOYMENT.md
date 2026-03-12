@@ -1,4 +1,4 @@
-# Delegation Gatekeeper — Deployment
+# Vouch — Deployment
 
 ## Docker
 
@@ -16,7 +16,7 @@ docker run -p 3040:3040 -e GATEKEEPER_SIGNING_SECRET=secret delegation-gatekeepe
 
 - Use the Docker image and deploy as a Deployment with a Service (NodePort or LoadBalancer).
 - Mount a Secret for `GATEKEEPER_SIGNING_SECRET`.
-- For production, add a PersistentVolume for file-backed audit log (set `GATEKEEPER_AUDIT_FILE_PATH` or use a DB adapter when implemented).
+- For production, add a PersistentVolume for file-backed audit log (set `VOUCH_AUDIT_FILE_PATH` or use a DB adapter when implemented).
 
 ## Environment variables
 

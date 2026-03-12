@@ -1,8 +1,8 @@
 /**
  * Audit layer query and options.
- * Event shape from @delegation-gatekeeper/types.
+ * Event shape from @vouch/types.
  */
-import type { AuditEvent, AuditEventType } from '@delegation-gatekeeper/types';
+import type { AuditEvent, AuditEventType } from '@vouch/types';
 
 /** Filter for querying audit events */
 export interface AuditQueryFilter {

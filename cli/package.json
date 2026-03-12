@@ -1,8 +1,8 @@
 {
-  "name": "@delegation-gatekeeper/cli",
+  "name": "@vouch/cli",
   "version": "0.1.0",
   "private": true,
-  "bin": { "dg": "dist/cli.js" },
+  "bin": { "vouch": "dist/cli.js" },
   "main": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
@@ -10,7 +10,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@delegation-gatekeeper/types": "*"
+    "@vouch/types": "*"
   },
   "devDependencies": {
     "typescript": "^5.3.0"

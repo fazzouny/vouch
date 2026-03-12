@@ -2,7 +2,7 @@
  * In-memory budget and spend store.
  * Check before grant/execution; record spend after execution.
  */
-import type { Budget, SpendRecord, BudgetScope } from '@delegation-gatekeeper/types';
+import type { Budget, SpendRecord, BudgetScope } from '@vouch/types';
 import * as crypto from 'node:crypto';
 
 function now(): string {

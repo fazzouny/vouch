@@ -1,2 +1,2 @@
-/** @delegation-gatekeeper/policy-engine — Policy evaluation placeholder */
+/** @vouch/policy-engine — Policy evaluation placeholder */
 export {};

@@ -1,5 +1,5 @@
 /**
- * @delegation-gatekeeper/gateway
+ * @vouch/gateway
  * Identity, delegation layer, and gateway surface.
  */
 

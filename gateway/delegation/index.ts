@@ -2,7 +2,7 @@
  * Gateway delegation layer: mint, verify, revoke grants; re-export policy evaluation.
  */
 
-import { evaluatePolicy } from '@delegation-gatekeeper/policy-engine';
+import { evaluatePolicy } from '@vouch/policy-engine';
 
 export { mintGrant, type MintGrantInput, type MintGrantResult, type MintGrantSuccess, type MintGrantDenial } from './mint.js';
 export { verifyGrant, type VerifyGrantResult, type VerifyGrantOptions } from './verify.js';
@@ -10,4 +10,4 @@ export { revokeGrant, revokeGrantsByAgent, revokeGrantsByAgentList, registerGran
 export { signGrant, verifySignature, defaultExpiresAt, type SigningOptions } from './sign.js';
 
 export { evaluatePolicy };
-export type { AgentIdentity } from '@delegation-gatekeeper/policy-engine';
+export type { AgentIdentity } from '@vouch/policy-engine';
