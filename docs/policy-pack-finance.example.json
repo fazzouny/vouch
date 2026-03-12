@@ -1,0 +1,28 @@
+{
+  "name": "finance",
+  "description": "Example policy pack for finance: payment requires approval, low-trust denied for payment",
+  "config": {
+    "defaultEffect": "deny",
+    "rules": [
+      {
+        "id": "deny-low-trust-payment",
+        "trustTier": "low",
+        "targetService": "payment",
+        "effect": "deny",
+        "reason": "Low-trust agents cannot perform payment actions"
+      },
+      {
+        "id": "require-approval-payment",
+        "targetService": "payment",
+        "effect": "require_approval",
+        "reason": "Payment actions require human approval"
+      },
+      {
+        "id": "allow-rest",
+        "targetService": "rest",
+        "effect": "allow",
+        "reason": "REST API allowed"
+      }
+    ]
+  }
+}

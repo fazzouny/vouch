@@ -1,0 +1,45 @@
+{
+  "name": "delegation-gatekeeper",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Trust and control layer for AI agents — identity, scoped grants, policy, approval, execution mediation, and audit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/delegation-gatekeeper/delegation-gatekeeper.git"
+  },
+  "bugs": { "url": "https://github.com/delegation-gatekeeper/delegation-gatekeeper/issues" },
+  "homepage": "https://github.com/delegation-gatekeeper/delegation-gatekeeper#readme",
+  "type": "module",
+  "workspaces": [
+    "gateway",
+    "policy-engine",
+    "adapters",
+    "sdk",
+    "admin-ui",
+    "cli",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @delegation-gatekeeper/types && npm run build --workspaces --if-present && tsc",
+    "start": "node dist/gateway/server.js",
+    "dev": "tsx watch src/gateway/server.ts",
+    "dev:gateway": "tsx watch src/gateway/server.ts"
+  },
+  "dependencies": {
+    "@delegation-gatekeeper/gateway": "*",
+    "@delegation-gatekeeper/policy-engine": "*",
+    "cors": "^2.8.5",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@10.0.0"
+}

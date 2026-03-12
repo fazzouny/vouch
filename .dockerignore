@@ -1,0 +1,12 @@
+node_modules
+dist
+**/*.test.ts
+**/__tests__
+.git
+.cursor
+*.md
+!README.md
+admin-ui
+cli
+docs
+.cursor

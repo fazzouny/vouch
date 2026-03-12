@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Delegation Gatekeeper — Admin</title>
+  <style>
+    :root { --bg: #0f0f12; --card: #1a1a1f; --text: #e4e4e7; --muted: #71717a; --accent: #a78bfa; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 1.5rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 1rem; }
+    section { background: var(--card); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    section h2 { font-size: 1rem; margin: 0 0 0.5rem; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #27272a; }
+    th { color: var(--muted); font-weight: 500; }
+    a { color: var(--accent); }
+    input { background: #27272a; border: 1px solid #3f3f46; color: var(--text); padding: 0.5rem; border-radius: 4px; width: 100%; max-width: 20rem; }
+    button { background: var(--accent); color: var(--bg); border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+    .empty { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <h1>Delegation Gatekeeper — Admin</h1>
+  <p class="muted" style="color: var(--muted); margin-bottom: 1rem;">Base URL: <input type="text" id="baseUrl" value="http://localhost:3040" /> <button onclick="load()">Refresh</button></p>
+
+  <section>
+    <h2>Pending approvals</h2>
+    <div id="approvals">Loading…</div>
+  </section>
+  <section>
+    <h2>Recent audit events</h2>
+    <div id="audit">Loading…</div>
+  </section>
+
+  <script>
+    const baseUrl = () => document.getElementById('baseUrl').value.trim().replace(/\/$/, '');
+    async function load() {
+      try {
+        const [apr, evt] = await Promise.all([
+          fetch(baseUrl() + '/approvals?status=pending').then(r => r.json()),
+          fetch(baseUrl() + '/audit/events').then(r => r.json())
+        ]);
+        const approvals = apr.approvals ?? [];
+        const events = (evt.events ?? []).slice(0, 20);
+        document.getElementById('approvals').innerHTML = approvals.length === 0
+          ? '<p class="empty">No pending approvals</p>'
+          : '<table><tr><th>ID</th><th>Requester</th><th>Scope</th><th>Reason</th><th>Expires</th></tr>' +
+            approvals.map(a => `<tr><td>${a.id}</td><td>${a.requesterId}</td><td>${a.scopeSummary}</td><td>${a.reason}</td><td>${a.expiresAt}</td></tr>`).join('') + '</table>';
+        document.getElementById('audit').innerHTML = events.length === 0
+          ? '<p class="empty">No audit events (or gateway not running)</p>'
+          : '<table><tr><th>Time</th><th>Type</th><th>Agent</th><th>Task</th></tr>' +
+            events.map(e => `<tr><td>${e.timestamp}</td><td>${e.eventType}</td><td>${e.agentId ?? '—'}</td><td>${e.taskId ?? '—'}</td></tr>`).join('') + '</table>';
+      } catch (err) {
+        document.getElementById('approvals').innerHTML = '<p class="empty">Error: ' + err.message + '. Is the gateway running?</p>';
+        document.getElementById('audit').innerHTML = '';
+      }
+    }
+    load();
+  </script>
+</body>
+</html>

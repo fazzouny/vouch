@@ -1,0 +1,181 @@
+openapi: 3.0.3
+info:
+  title: Delegation Gatekeeper API
+  description: Trust, delegation, approval, and audit layer between AI agents and external systems.
+  version: 0.1.0
+
+servers:
+  - url: http://localhost:3040
+    description: Default gateway
+
+paths:
+  /delegate:
+    post:
+      summary: Request a delegation grant
+      description: |
+        Resolves caller identity from Authorization header, evaluates policy, and mints a grant
+        or returns 403 with reason.
+      operationId: delegate
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionRequest'
+      responses:
+        '200':
+          description: Grant minted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelegateSuccess'
+        '400':
+          description: Bad request (e.g. missing targetType)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (missing or invalid Authorization)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (policy denied or grant minting failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /execute:
+    post:
+      summary: Execute an action with a grant
+      description: |
+        Verifies the grant, checks revocation, dispatches to the appropriate adapter,
+        logs execution, and returns the result.
+      operationId: execute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteRequest'
+      responses:
+        '200':
+          description: Execution succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecuteSuccess'
+        '400':
+          description: Bad request (missing grant/action) or execution failed (invalid/expired/revoked grant)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecuteError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer token (for stub, token value is used as agent id)
+
+  schemas:
+    ActionRequest:
+      type: object
+      required:
+        - targetType
+      properties:
+        intendedAction:
+          type: string
+          description: Human-readable description of the intended action
+        targetType:
+          type: string
+          enum: [http, rest]
+          description: Target system type (determines which adapter is used)
+        scope:
+          type: string
+          description: Optional scope identifier
+        taskId:
+          type: string
+        runId:
+          type: string
+        justification:
+          type: string
+        actionPayload:
+          type: object
+          description: Adapter-specific payload (e.g. for rest: url, method, body)
+
+    Grant:
+      type: object
+      properties:
+        grantId:
+          type: string
+        agentId:
+          type: string
+        scope:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        targetType:
+          type: string
+        signed:
+          type: string
+          description: Serialized/signed form to send to POST /execute
+
+    DelegateSuccess:
+      type: object
+      required:
+        - grant
+      properties:
+        grant:
+          $ref: '#/components/schemas/Grant'
+
+    ExecuteRequest:
+      type: object
+      required:
+        - grant
+        - action
+      properties:
+        grant:
+          type: string
+          description: Signed grant (as returned from POST /delegate)
+        action:
+          type: object
+          description: Action payload (e.g. for rest: url, method, body, headers)
+
+    ExecuteSuccess:
+      type: object
+      properties:
+        result:
+          description: Adapter return data (e.g. response body from REST call)
+        statusCode:
+          type: integer
+          description: HTTP status from target (for REST adapter)
+
+    ExecuteError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message (e.g. invalid or expired grant, revoked, execution failure)
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        reason:
+          type: string

@@ -1,0 +1,19 @@
+{
+  "name": "@delegation-gatekeeper/gateway",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/identity/store.test.js dist/identity/auth.test.js"
+  },
+  "dependencies": {
+    "@delegation-gatekeeper/types": "*",
+    "@delegation-gatekeeper/policy-engine": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "typescript": "^5.3.0"
+  }
+}

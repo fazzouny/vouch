@@ -1,0 +1,15 @@
+# Delegation Gatekeeper — single-service run for development.
+# For production: add PostgreSQL for identity/audit, Redis for revocation cache, and secrets.
+version: "3.9"
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3040:3040"
+    environment:
+      - PORT=3040
+      - NODE_ENV=production
+      - GATEKEEPER_SIGNING_SECRET=${GATEKEEPER_SIGNING_SECRET:-change-me-in-production}
+    restart: unless-stopped
