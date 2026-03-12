@@ -5,10 +5,10 @@
   "description": "Trust and control layer for AI agents — identity, scoped grants, policy, approval, execution mediation, and audit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/delegation-gatekeeper/delegation-gatekeeper.git"
+    "url": "https://github.com/YOUR_USERNAME/delegation-gatekeeper.git"
   },
-  "bugs": { "url": "https://github.com/delegation-gatekeeper/delegation-gatekeeper/issues" },
-  "homepage": "https://github.com/delegation-gatekeeper/delegation-gatekeeper#readme",
+  "bugs": { "url": "https://github.com/YOUR_USERNAME/delegation-gatekeeper/issues" },
+  "homepage": "https://github.com/YOUR_USERNAME/delegation-gatekeeper#readme",
   "type": "module",
   "workspaces": [
     "gateway",
