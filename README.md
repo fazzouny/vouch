@@ -86,6 +86,7 @@ Without publishing the SDK, use a path import: `import { VouchClient } from "./s
 ## Docs
 
 - [Deployment](docs/DEPLOYMENT.md) — Docker, env vars, production notes
+- [Integration (OpenClaw / Claude Code)](docs/INTEGRATION.md) — Call Vouch from any agent (env, delegate → execute flow). See [integrations/openclaw](integrations/openclaw) (OpenClaw skill) and [integrations/mcp-vouch](integrations/mcp-vouch) (MCP server for Claude Code / Cursor).
 - [OpenAPI](docs/openapi.yaml) — API spec
 - [Policy pack example](docs/policy-pack-finance.example.json) — JSON policy sample
 
