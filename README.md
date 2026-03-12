@@ -1,4 +1,4 @@
-# Delegation Gatekeeper
+# VoUCH - Delegation Gatekeeper
 
 Trust, delegation, approval, and audit layer between AI agents and external systems.
 
