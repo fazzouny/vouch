@@ -22,22 +22,24 @@ npm run build
 npm start
 ```
 
-Gateway runs at **http://localhost:3040**. Use the CLI or SDK to request a grant and execute an action (see below).
+If you cloned as `delegation-gatekeeper`, run `cd delegation-gatekeeper` (or rename the folder to `vouch`).
+
+Gateway runs at **http://localhost:3040**. Use the CLI or SDK to request a grant and execute an action (see below). If port 3040 is in use, start with `PORT=3041 npm start` and set `VOUCH_BASE_URL=http://localhost:3041` for clients.
 
 | What you need | Command / env |
 |---------------|----------------|
-| **CLI** | `npx vouch delegate --token agent-1 --target rest` then `vouch audit`, `vouch approvals`, `vouch revoke --grant-id <id>` |
+| **CLI** | `npx vouch delegate --token agent-1 --target rest` then `vouch audit`, `vouch approvals`, `vouch revoke --grant-id <id>`. For a single delegate-then-execute flow (e.g. from OpenClaw), use the script in `integrations/openclaw/vouch_request.mjs`. |
 | **Env** | `VOUCH_BASE_URL` (default `http://localhost:3040`), `VOUCH_TOKEN` (e.g. `agent-1`) |
 | **Production** | Set `VOUCH_SIGNING_SECRET`; see [Deployment](docs/DEPLOYMENT.md) and `docker compose up` |
 
 ## What’s included
 
 - **Gateway** — Identity (seeded default agent), policy engine (allow / deny / require_approval), signed grants, revocation, audit log (with optional hash chain), approvals, budgets, trust scores.
-- **Execution adapters** — REST proxy, A2A relay, browser (stub).
+- **Execution adapters** — REST proxy, A2A relay, browser (stub), MCP (policy gate; execute via [MCP server](integrations/mcp-vouch)).
 - **API** — `POST /delegate`, `POST /execute`, `GET/POST /approvals`, `POST /approvals/:id/decide`, `GET/POST /budgets`, `GET /audit/events`, `GET /audit/export`, `GET /trust/agents/:id/score`, `POST /grants/revoke`. See [OpenAPI](docs/openapi.yaml).
 - **SDK** — `@vouch/sdk`: `VouchClient.requestDelegation`, `executeWithGrant`.
 - **CLI** — `vouch` for delegate, execute, audit, approvals, revoke.
-- **Admin UI** — Static dashboard for pending approvals and audit events (serve `admin-ui/` and point base URL at your gateway).
+- **Admin UI** — Static dashboard for pending approvals and audit events. Serve the folder (e.g. `npx serve admin-ui`) and set the base URL in the page to your gateway.
 
 ## Project structure
 
@@ -86,9 +88,15 @@ Without publishing the SDK, use a path import: `import { VouchClient } from "./s
 ## Docs
 
 - [Deployment](docs/DEPLOYMENT.md) — Docker, env vars, production notes
+- [Concepts](docs/CONCEPTS.md) — Grant lifecycle, policy, approval flow, trust, audit
+- [Recipes](docs/RECIPES.md) — Gate MCP tools, payment approval, multi-agent trust, file-backed audit and policy
 - [Integration (OpenClaw / Claude Code)](docs/INTEGRATION.md) — Call Vouch from any agent (env, delegate → execute flow). See [integrations/openclaw](integrations/openclaw) (OpenClaw skill) and [integrations/mcp-vouch](integrations/mcp-vouch) (MCP server for Claude Code / Cursor).
 - [OpenAPI](docs/openapi.yaml) — API spec
 - [Policy pack example](docs/policy-pack-finance.example.json) — JSON policy sample
+
+## Standards
+
+Vouch acts as a delegation and authorization layer between AI agents and the systems they call. It supports A2A-style relay and MCP as a gatable target type and can align with emerging agent-to-agent and agent-to-tool standards. See [Concepts — Standards](docs/CONCEPTS.md#standards-and-ecosystem).
 
 ## License and contributing
 

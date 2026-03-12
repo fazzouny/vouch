@@ -102,8 +102,8 @@ components:
           description: Human-readable description of the intended action
         targetType:
           type: string
-          enum: [http, rest]
-          description: Target system type (determines which adapter is used)
+          enum: [http, rest, mcp, a2a, browser]
+          description: Target system type (rest/http, mcp, a2a, browser; determines which adapter is used)
         scope:
           type: string
           description: Optional scope identifier

@@ -32,3 +32,7 @@ coverage/
 
 # Optional
 *.local
+
+# Local screenshot seed (run only for demos; do not commit)
+seed-screenshot.local.mjs
+policy.screenshot.local.json

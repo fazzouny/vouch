@@ -3,6 +3,7 @@
  * Export for use by the gateway and other packages.
  */
 export { IdentityStore } from './store.js';
+export { IdentityStoreSqlite } from './store-sqlite.js';
 export type { IdentityStoreConfig } from './store.js';
 export { resolveCallerIdentity } from './auth.js';
 export type {

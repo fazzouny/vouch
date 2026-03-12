@@ -1,11 +1,17 @@
 #!/usr/bin/env node
 /**
  * Vouch delegate → execute flow for OpenClaw (or any script caller).
- * Usage: node vouch_request.mjs --action "GET example" --url "https://httpbin.org/get" [--method GET] [--body '{}']
+ * Required: --url
+ * Optional: --action, --method (default GET), --body
+ * All JSON output (success and error) is on stdout.
  * Env: VOUCH_BASE_URL (default http://localhost:3040), VOUCH_TOKEN (e.g. agent-1)
  */
 const baseUrl = (process.env.VOUCH_BASE_URL || "http://localhost:3040").replace(/\/$/, "");
 const token = process.env.VOUCH_TOKEN || "agent-1";
+
+function out(obj) {
+  console.log(JSON.stringify(obj));
+}
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -24,7 +30,7 @@ function parseArgs() {
 async function main() {
   const { intendedAction, targetType, url, method, body } = parseArgs();
   if (!url) {
-    console.error(JSON.stringify({ error: "Missing --url" }));
+    out({ error: "Missing --url" });
     process.exit(1);
   }
   const actionPayload = { url, method };
@@ -39,12 +45,25 @@ async function main() {
       actionPayload,
     }),
   });
-  if (!resDelegate.ok) {
-    const err = await resDelegate.json().catch(() => ({}));
-    console.error(JSON.stringify({ error: err.reason || err.error || `delegate failed: ${resDelegate.status}` }));
+
+  const delegateData = await resDelegate.json().catch(() => ({}));
+
+  if (resDelegate.status === 202 || delegateData.pending_approval) {
+    out({
+      error: "approval_required",
+      approvalRequestId: delegateData.approvalRequestId,
+      expiresAt: delegateData.expiresAt,
+      message: delegateData.message || "Action requires approval.",
+    });
     process.exit(1);
   }
-  const { grant } = await resDelegate.json();
+
+  if (!resDelegate.ok) {
+    out({ error: delegateData.reason || delegateData.error || `delegate failed: ${resDelegate.status}` });
+    process.exit(1);
+  }
+
+  const { grant } = delegateData;
   const signed = typeof grant?.signed === "string" ? grant.signed : JSON.stringify(grant);
 
   const resExecute = await fetch(`${baseUrl}/execute`, {
@@ -52,13 +71,27 @@ async function main() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ grant: signed, action: actionPayload }),
   });
+  const executeData = await resExecute.json().catch(() => ({}));
+
   if (!resExecute.ok) {
-    const err = await resExecute.json().catch(() => ({}));
-    console.error(JSON.stringify({ error: err.error || `execute failed: ${resExecute.status}` }));
+    out({ error: executeData.error || `execute failed: ${resExecute.status}` });
     process.exit(1);
   }
-  const data = await resExecute.json();
-  console.log(JSON.stringify(data));
+
+  out(executeData);
 }
 
-main();
+main().catch((err) => {
+  const cause = err.cause;
+  const code = cause?.code ?? cause?.errors?.[0]?.code;
+  if (code === "ECONNREFUSED" || (typeof err.message === "string" && err.message.includes("ECONNREFUSED"))) {
+    out({
+      error: "gateway_unreachable",
+      cause: "ECONNREFUSED",
+      hint: "Ensure the Vouch gateway is running (e.g. npm start in the Vouch repo).",
+    });
+  } else {
+    out({ error: "request_failed", cause: err.message || String(err) });
+  }
+  process.exit(1);
+});

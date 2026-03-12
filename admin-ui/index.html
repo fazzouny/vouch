@@ -17,15 +17,23 @@
     a { color: var(--accent); }
     input { background: #27272a; border: 1px solid #3f3f46; color: var(--text); padding: 0.5rem; border-radius: 4px; width: 100%; max-width: 20rem; }
     button { background: var(--accent); color: var(--bg); border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+    button.secondary { background: #3f3f46; color: var(--text); }
+    button.danger { background: #7f1d1d; color: #fecaca; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
     .empty { color: var(--muted); }
+    .error { color: #f87171; }
+    .success { color: #86efac; }
   </style>
 </head>
 <body>
   <h1>Vouch — Admin</h1>
   <p class="muted" style="color: var(--muted); margin-bottom: 1rem;">Base URL: <input type="text" id="baseUrl" value="http://localhost:3040" /> <button onclick="load()">Refresh</button></p>
+  <p class="muted" style="color: var(--muted); margin-bottom: 1rem;">Approver ID: <input type="text" id="approverId" value="admin" placeholder="e.g. admin" /> Reason (optional): <input type="text" id="reason" placeholder="Optional reason" style="max-width: 16rem;" /></p>
+  <p class="muted" style="color: var(--muted); margin-bottom: 1rem;">Admin API key: <input type="password" id="adminToken" placeholder="If server uses VOUCH_ADMIN_API_KEY" style="max-width: 14rem;" /> (optional; required when server sets VOUCH_ADMIN_API_KEY)</p>
 
   <section>
     <h2>Pending approvals</h2>
+    <div id="approvalMessage" class="empty" style="margin-bottom: 0.5rem;"></div>
     <div id="approvals">Loading…</div>
   </section>
   <section>
@@ -35,26 +43,68 @@
 
   <script>
     const baseUrl = () => document.getElementById('baseUrl').value.trim().replace(/\/$/, '');
+    const headers = () => {
+      const h = { 'Content-Type': 'application/json' };
+      const token = document.getElementById('adminToken')?.value?.trim();
+      if (token) h['Authorization'] = 'Bearer ' + token;
+      return h;
+    };
+    function setApprovalMessage(msg, isError) {
+      const el = document.getElementById('approvalMessage');
+      el.textContent = msg || '';
+      el.className = isError ? 'error' : 'success';
+      if (msg) setTimeout(() => { el.textContent = ''; }, 5000);
+    }
+    async function decide(approvalId, decision) {
+      const approverId = document.getElementById('approverId').value.trim();
+      if (!approverId) {
+        setApprovalMessage('Please set Approver ID', true);
+        return;
+      }
+      const reason = document.getElementById('reason')?.value?.trim() || undefined;
+      try {
+        const res = await fetch(baseUrl() + '/approvals/' + encodeURIComponent(approvalId) + '/decide', {
+          method: 'POST',
+          headers: headers(),
+          body: JSON.stringify({ decision, approverId, reason })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setApprovalMessage(data.reason || data.error || 'Request failed', true);
+          return;
+        }
+        setApprovalMessage(decision === 'approved' ? 'Grant issued for ' + approvalId : 'Denied ' + approvalId, false);
+        load();
+      } catch (err) {
+        setApprovalMessage(err.message || 'Request failed', true);
+      }
+    }
     async function load() {
       try {
         const [apr, evt] = await Promise.all([
-          fetch(baseUrl() + '/approvals?status=pending').then(r => r.json()),
-          fetch(baseUrl() + '/audit/events').then(r => r.json())
+          fetch(baseUrl() + '/approvals?status=pending', { headers: headers() }).then(r => r.json()),
+          fetch(baseUrl() + '/audit/events', { headers: headers() }).then(r => r.json())
         ]);
         const approvals = apr.approvals ?? [];
         const events = (evt.events ?? []).slice(0, 20);
         document.getElementById('approvals').innerHTML = approvals.length === 0
           ? '<p class="empty">No pending approvals</p>'
-          : '<table><tr><th>ID</th><th>Requester</th><th>Scope</th><th>Reason</th><th>Expires</th></tr>' +
-            approvals.map(a => `<tr><td>${a.id}</td><td>${a.requesterId}</td><td>${a.scopeSummary}</td><td>${a.reason}</td><td>${a.expiresAt}</td></tr>`).join('') + '</table>';
+          : '<table><tr><th>ID</th><th>Requester</th><th>Scope</th><th>Reason</th><th>Expires</th><th>Actions</th></tr>' +
+            approvals.map(a => `<tr><td>${a.id}</td><td>${a.requesterId}</td><td>${a.scopeSummary}</td><td>${escapeHtml(a.reason)}</td><td>${a.expiresAt}</td><td><button onclick="decide('${a.id}', 'approved')">Approve</button> <button class="danger" onclick="decide('${a.id}', 'denied')">Deny</button></td></tr>`).join('') + '</table>';
         document.getElementById('audit').innerHTML = events.length === 0
           ? '<p class="empty">No audit events (or gateway not running)</p>'
           : '<table><tr><th>Time</th><th>Type</th><th>Agent</th><th>Task</th></tr>' +
             events.map(e => `<tr><td>${e.timestamp}</td><td>${e.eventType}</td><td>${e.agentId ?? '—'}</td><td>${e.taskId ?? '—'}</td></tr>`).join('') + '</table>';
       } catch (err) {
-        document.getElementById('approvals').innerHTML = '<p class="empty">Error: ' + err.message + '. Is the gateway running?</p>';
+        document.getElementById('approvals').innerHTML = '<p class="empty">Error: ' + escapeHtml(err.message) + '. Is the gateway running?</p>';
         document.getElementById('audit').innerHTML = '';
       }
+    }
+    function escapeHtml(s) {
+      if (s == null) return '';
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
     }
     load();
   </script>

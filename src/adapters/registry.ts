@@ -6,6 +6,7 @@ import type { ExecutionAdapter } from "./types.js";
 import { RestProxyAdapter } from "./rest-proxy-adapter.js";
 import { A2ARelayAdapter } from "./a2a-relay-adapter.js";
 import { BrowserSessionAdapter } from "./browser-session-adapter.js";
+import { McpAdapter } from "./mcp-adapter.js";
 
 const adapters = new Map<string, ExecutionAdapter>();
 
@@ -15,6 +16,7 @@ function registerDefaultAdapters(): void {
   adapters.set("http", rest); // alias
   adapters.set("a2a", new A2ARelayAdapter());
   adapters.set("browser", new BrowserSessionAdapter());
+  adapters.set("mcp", new McpAdapter());
 }
 
 registerDefaultAdapters();

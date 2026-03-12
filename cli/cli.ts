@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
  * Vouch CLI: request grant, execute, query audit, list approvals, revoke grant.
- * Usage: dg <command> [options]
- *   dg delegate --base-url URL --token TOKEN --target rest [--scope SCOPE]
- *   dg execute --base-url URL --grant-file FILE --action '{"url":"..."}'
- *   dg audit --base-url URL [--agent-id ID] [--limit N]
- *   dg approvals --base-url URL [--status pending]
- *   dg revoke --base-url URL --grant-id ID
+ * Usage: vouch <command> [options]
+ *   vouch delegate --base-url URL --token TOKEN --target rest [--scope SCOPE]
+ *   vouch execute --base-url URL --grant-file FILE --action '{"url":"..."}'
+ *   vouch audit --base-url URL [--agent-id ID] [--limit N]
+ *   vouch approvals --base-url URL [--status pending]
+ *   vouch revoke --base-url URL --grant-id ID
  */
 const BASE_URL = process.env.VOUCH_BASE_URL ?? "http://localhost:3040";
 
@@ -37,7 +37,7 @@ async function execute(args: string[]): Promise<void> {
   const grantFile = args.indexOf("--grant-file") >= 0 ? args[args.indexOf("--grant-file") + 1] : null;
   const actionStr = args.indexOf("--action") >= 0 ? args[args.indexOf("--action") + 1] : "{}";
   if (!grantFile) {
-    console.error("Usage: dg execute --base-url URL --grant-file FILE --action '{\"url\":\"...\"}'");
+    console.error("Usage: vouch execute --base-url URL --grant-file FILE --action '{\"url\":\"...\"}'");
     process.exit(1);
   }
   const fs = await import("node:fs/promises");
@@ -91,7 +91,7 @@ async function revoke(args: string[]): Promise<void> {
   const baseUrl = args.indexOf("--base-url") >= 0 ? args[args.indexOf("--base-url") + 1] : BASE_URL;
   const grantId = args.indexOf("--grant-id") >= 0 ? args[args.indexOf("--grant-id") + 1] : null;
   if (!grantId) {
-    console.error("Usage: dg revoke --base-url URL --grant-id ID");
+    console.error("Usage: vouch revoke --base-url URL --grant-id ID");
     process.exit(1);
   }
   const res = await fetch(`${baseUrl}/grants/revoke`, {

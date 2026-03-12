@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "echo 'Admin UI build TBD'"
+    "build": "echo 'Admin UI is static HTML; no build step required.'"
   },
   "dependencies": {
     "@vouch/types": "*"

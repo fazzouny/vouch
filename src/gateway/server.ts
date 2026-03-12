@@ -26,15 +26,63 @@ import type {
   AuditExecutionPayload,
 } from "@vouch/types";
 import type { AgentIdentity } from "@vouch/policy-engine";
-import { getIdentityStore, getSigningOptions, getApprovalStore, getBudgetStore, getTrustStore } from "../bootstrap.js";
+import { getIdentityStore, getSigningOptions, getApprovalStore, getBudgetStore, getTrustStore, getPolicyConfig, initAuditLog } from "../bootstrap.js";
 import { getAdapter } from "../adapters/registry.js";
 import type { VerifiedGrant, ExecutionResult } from "../types.js";
+import { recordDelegation, recordExecution, recordApprovalDecision, getPrometheusText } from "../metrics.js";
+import { checkRateLimit } from "../rate-limit.js";
+
+initAuditLog();
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3040;
+const ADMIN_API_KEY = process.env.VOUCH_ADMIN_API_KEY;
+
+/** Admin routes require VOUCH_ADMIN_API_KEY when set (Bearer or X-API-Key). */
+function adminAuthMiddleware(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+): void {
+  if (!ADMIN_API_KEY) {
+    next();
+    return;
+  }
+  const isAdminRoute =
+    req.path.startsWith("/approvals") ||
+    req.path.startsWith("/audit/") ||
+    req.path.startsWith("/trust/agents/") ||
+    req.path === "/grants/revoke";
+  if (!isAdminRoute) {
+    next();
+    return;
+  }
+  const authHeader = req.headers.authorization;
+  const apiKey = req.headers["x-api-key"] as string | undefined;
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7).trim() : undefined;
+  const provided = token ?? apiKey;
+  if (provided !== ADMIN_API_KEY) {
+    res.status(401).json({ error: "unauthorized", reason: "Missing or invalid admin API key" });
+    return;
+  }
+  next();
+}
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.get("/health", (_req, res) => {
+  const audit = process.env.VOUCH_AUDIT_FILE_PATH ? "file" : "memory";
+  const policy = process.env.VOUCH_POLICY_PATH ? "file" : "default";
+  res.status(200).json({ status: "ok", audit, policy });
+});
+
+app.get("/metrics", (_req, res) => {
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.status(200).send(getPrometheusText());
+});
+
+app.use(adminAuthMiddleware);
 
 /** Request body for POST /delegate (supports both stub targetType and plan targetSystem) */
 interface DelegateBody {
@@ -112,10 +160,19 @@ app.post("/delegate", async (req, res) => {
     }
 
     const actionRequest = toActionRequest(body);
+    const limit = process.env.VOUCH_RATE_LIMIT_DELEGATE_PER_AGENT != null ? parseInt(process.env.VOUCH_RATE_LIMIT_DELEGATE_PER_AGENT, 10) : 0;
+    const rateCheck = checkRateLimit(agentIdentity.id, limit, actionRequest.scope);
+    if (!rateCheck.allowed) {
+      res.setHeader("Retry-After", String(rateCheck.retryAfterSeconds));
+      res.status(429).json({ error: "too_many_requests", reason: "Delegation rate limit exceeded", retryAfterSeconds: rateCheck.retryAfterSeconds });
+      return;
+    }
+
     const signingOptions: SigningOptions = getSigningOptions();
 
-    const policyDecision = evaluatePolicy(actionRequest, agentIdentity);
+    const policyDecision = evaluatePolicy(actionRequest, agentIdentity, getPolicyConfig());
     if (policyDecision.result === "deny") {
+      recordDelegation("deny");
       res.status(403).json({
         error: "forbidden",
         reason: policyDecision.reason,
@@ -124,6 +181,7 @@ app.post("/delegate", async (req, res) => {
       return;
     }
     if (policyDecision.result === "require_approval") {
+      recordDelegation("require_approval");
       const approvalStore = getApprovalStore();
       const approvalRequest = await approvalStore.createRequest({
         requesterId: agentIdentity.id,
@@ -173,6 +231,7 @@ app.post("/delegate", async (req, res) => {
       return;
     }
 
+    recordDelegation("allow");
     appendEvent({
       eventId: crypto.randomUUID(),
       eventType: "request",
@@ -230,6 +289,7 @@ app.post("/execute", async (req, res) => {
     }
 
     const execResult: ExecutionResult = await adapter.execute(verifiedGrant, action);
+    recordExecution(execResult.success);
     const trustStore = getTrustStore();
     if (execResult.success) {
       await trustStore.recordSignal({
@@ -356,6 +416,7 @@ app.post("/approvals/:id/decide", async (req, res) => {
       });
       return;
     }
+    recordApprovalDecision(decision);
     if (decision === "denied") {
       const trustStore = getTrustStore();
       await trustStore.recordSignal({
@@ -536,15 +597,18 @@ app.post("/budgets", async (req, res) => {
   }
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`Vouch gateway listening on http://localhost:${PORT}`);
-});
+export { app };
 
-server.on("error", (err: NodeJS.ErrnoException) => {
-  if (err.code === "EADDRINUSE") {
-    console.error(`Port ${PORT} is already in use. Stop the other process or run with PORT=3041 npm start`);
-  } else {
-    console.error(err);
-  }
-  process.exit(1);
-});
+if (process.env.VOUCH_TEST !== "1") {
+  const server = app.listen(PORT, () => {
+    console.log(`Vouch gateway listening on http://localhost:${PORT}`);
+  });
+  server.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(`Port ${PORT} is already in use. Stop the other process or run with PORT=3041 npm start`);
+    } else {
+      console.error(err);
+    }
+    process.exit(1);
+  });
+}

@@ -3,7 +3,7 @@
  * Identity, delegation layer, and gateway surface.
  */
 
-export { IdentityStore } from './identity/store.js';
+export { IdentityStore, IdentityStoreSqlite } from './identity/index.js';
 export { resolveCallerIdentity } from './identity/auth.js';
 export type {
   ResolvedIdentityContext,
@@ -14,7 +14,7 @@ export type {
 export { appendEvent, queryEvents, createAuditLog, setDefaultAuditLog } from './audit/index.js';
 export type { AuditLogOptions, AuditQueryFilter } from './audit/types.js';
 
-export { ApprovalStore } from './approval/index.js';
+export { ApprovalStore, ApprovalStoreSqlite } from './approval/index.js';
 export type { CreateApprovalRequestInput } from './approval/index.js';
 
 export { BudgetStore } from './budget/index.js';

@@ -23,7 +23,8 @@
     "build": "npm run build -w @vouch/types && npm run build --workspaces --if-present && tsc",
     "start": "node dist/gateway/server.js",
     "dev": "tsx watch src/gateway/server.ts",
-    "dev:gateway": "tsx watch src/gateway/server.ts"
+    "dev:gateway": "tsx watch src/gateway/server.ts",
+    "test:integration": "node --import tsx --test tests/integration/*.test.ts"
   },
   "dependencies": {
     "@vouch/gateway": "*",
@@ -35,6 +36,8 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^22.9.0",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.3.0"
   },

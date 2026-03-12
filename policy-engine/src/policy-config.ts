@@ -91,5 +91,11 @@ export const DEFAULT_POLICY: PolicyConfig = {
       effect: 'allow',
       reason: 'Browser session allowed (stub)',
     },
+    {
+      id: 'allow-mcp-default',
+      targetService: 'mcp',
+      effect: 'allow',
+      reason: 'MCP tool access allowed; use integrations/mcp-vouch to request and execute',
+    },
   ],
 };

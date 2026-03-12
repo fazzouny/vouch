@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@vouch/types": "*",
-    "@vouch/policy-engine": "*"
+    "@vouch/policy-engine": "*",
+    "better-sqlite3": "^11.6.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
     "@types/node": "^22.9.0",
     "typescript": "^5.3.0"
   }
